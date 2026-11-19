@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameKeys Shop - Главная</title>
+    <link rel="stylesheet" href="style.css"><script src="app.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">KEY STORE</div>
+            <div class="nav-links">
+                <a href="main.html" class="active">Главная</a>
+                <a href="catalog.html">Каталог</a>
+                <a href="cart.html">Корзина <span class="cart-count">0</span></a>
+                <a href="contacts.html">Контакты</a>
+                <a href="info.html">Полезное</a>
+                <a href="purchases.html">Мои покупки</a><a href="profile.html">Кабинет</a><a data-auth-link href="auth.html">Войти</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="hero">
+            <div>
+                <h1>Покупай игры <span>мгновенно</span></h1>
+                <p class="hero-text">Цифровые ключи для Steam, Xbox и PlayStation с быстрой выдачей после оформления заказа.</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">Горячие предложения</h2>
+        <div class="games-grid" id="featured-games"></div>
+
+        <div class="categories">
+            <span class="category-tag">Steam</span>
+            <span class="category-tag">Xbox</span>
+            <span class="category-tag">PlayStation</span>
+            <span class="category-tag">Новинки</span>
+            <span class="category-tag">Предзаказ</span>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 студенческий проект</p>
+    </footer>
+
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = totalItems;
+            });
+        }
+
+        async function getAvailableKeysCount() {
+            await GameKeys.ensureInventory();
+            const keysCount = {};
+            GameKeys.getAvailableInventory().forEach(key => {
+                keysCount[key.gameId] = (keysCount[key.gameId] || 0) + 1;
+            });
+            return keysCount;
+        }
+
+        const featuredGames = [
+            { id: 1, name: 'Cyberpunk 2077', price: 2499, oldPrice: 3990, image: 'images/cyberpunk.jpg' },
+            { id: 2, name: 'Elden Ring', price: 2790, oldPrice: 3499, image: 'images/eldenring.jpg' },
+            { id: 3, name: 'CS2 Prime', price: 1290, oldPrice: null, image: 'images/cs2.jpg' },
+            { id: 4, name: 'Hogwarts Legacy', price: 2899, oldPrice: 3990, image: 'images/hogwarts.jpg' }
+        ];
+
+        async function renderFeaturedGames() {
+            const availableCounts = await getAvailableKeysCount();
+            const container = document.getElementById('featured-games');
+            
+            container.innerHTML = featuredGames.map(game => {
+                const availableCount = availableCounts[game.id] || 0;
+                const isAvailable = availableCount > 0;
+                
+                return `
+                <div class="game-card">
+                    <div class="game-image">
+                        <img src="${game.image}" alt="${game.name}" onerror="this.src='images/placeholder.jpg'">
+                    </div>
+                    <div class="game-title">${game.name}</div>
+                    <div class="game-price">
+                        ${game.oldPrice ? `<span class="old-price">${game.oldPrice}₽</span>` : ''}
+                        ${game.price}₽
+                    </div>
+                    ${false ?
+                        `<div style="font-size:0.8rem; color:#28a745; margin:0.3rem 0;">В наличии</div>
+                        <button class="btn" onclick="addToCart(${game.id}, '${game.name}', ${game.price}, '${game.image}', this)">
+                            В корзину
+                        </button>` :
+                        (isAvailable ? 
+                            `<button class="btn" onclick="addToCart(${game.id}, '${game.name}', ${game.price}, '${game.image}', this)">
+                                В корзину
+                            </button>` :
+                            `<button class="btn" disabled style="opacity:0.5; cursor:not-allowed;">
+                                Нет в наличии
+                            </button>`)
+                    }
+                </div>
+            `}).join('');
+        }
+
+        // addToCart предоставляется app.js и проверяет реальный остаток ключей.
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            renderFeaturedGames();
+            
+        });
+    </script>
+</body>
+</html>

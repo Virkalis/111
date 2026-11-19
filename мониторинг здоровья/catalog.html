@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameKeys Shop - Каталог</title>
+    <link rel="stylesheet" href="style.css"><script src="app.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">KEY STORE</div>
+            <div class="nav-links">
+                <a href="main.html">Главная</a>
+                <a href="catalog.html" class="active">Каталог</a>
+                <a href="cart.html">Корзина <span class="cart-count">0</span></a>
+                <a href="contacts.html">Контакты</a>
+                <a href="info.html">Полезное</a>
+                <a href="purchases.html">Мои покупки</a><a href="profile.html">Кабинет</a><a data-auth-link href="auth.html">Войти</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">Каталог игр</h1>
+        
+        <div class="filters">
+            <select id="platform-filter" class="filter-select">
+                <option value="all">Все платформы</option>
+                <option value="steam">Steam</option>
+                <option value="xbox">Xbox</option>
+                <option value="playstation">PlayStation</option>
+            </select>
+            <select id="sort-filter" class="filter-select">
+                <option value="default">По умолчанию</option>
+                <option value="price-asc">Цена (возрастание)</option>
+                <option value="price-desc">Цена (убывание)</option>
+                <option value="name">По названию</option>
+            </select>
+        </div>
+
+        <div class="games-grid" id="catalog-games"></div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 — студенческий проект</p>
+    </footer>
+
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = totalItems;
+            });
+        }
+
+        async function getAvailableKeysCount() {
+            await GameKeys.ensureInventory();
+            const keysCount = {};
+            GameKeys.getAvailableInventory().forEach(key => {
+                keysCount[key.gameId] = (keysCount[key.gameId] || 0) + 1;
+            });
+            return keysCount;
+        }
+
+        const allGames = [
+            { id: 1, name: 'Cyberpunk 2077', price: 2499, oldPrice: 3990, image: 'images/cyberpunk.jpg', platform: 'steam' },
+            { id: 2, name: 'Elden Ring', price: 2790, oldPrice: 3499, image: 'images/eldenring.jpg', platform: 'steam' },
+            { id: 3, name: 'CS2 Prime', price: 1290, oldPrice: null, image: 'images/cs2.jpg', platform: 'steam' },
+            { id: 4, name: 'Hogwarts Legacy', price: 2899, oldPrice: 3990, image: 'images/hogwarts.jpg', platform: 'steam' },
+            { id: 5, name: 'Sons of The Forest', price: 1890, oldPrice: null, image: 'images/sonsforest.jpg', platform: 'steam' },
+            { id: 6, name: 'Baldur\'s Gate 3', price: 2990, oldPrice: 3490, image: 'images/baldursgate.jpg', platform: 'steam' },
+            { id: 7, name: 'Forza Horizon 5', price: 2199, oldPrice: 2990, image: 'images/forza.jpg', platform: 'xbox' },
+            { id: 8, name: 'FC 24', price: 2499, oldPrice: 3990, image: 'images/fc24.jpg', platform: 'xbox' },
+            { id: 9, name: 'God of War Ragnarok', price: 4290, oldPrice: 4990, image: 'images/godofwar.jpg', platform: 'playstation' },
+            { id: 10, name: 'Spider-Man 2', price: 3890, oldPrice: 4490, image: 'images/spiderman.jpg', platform: 'playstation' },
+            { id: 11, name: 'Diablo IV', price: 3490, oldPrice: 3990, image: 'images/diablo.jpg', platform: 'xbox' },
+            { id: 12, name: 'Starfield', price: 3290, oldPrice: 3990, image: 'images/starfield.jpg', platform: 'xbox' }
+        ];
+
+        // addToCart предоставляется app.js и проверяет реальный остаток ключей.
+
+        async function renderCatalog(games) {
+            const availableCounts = await getAvailableKeysCount();
+            const container = document.getElementById('catalog-games');
+            
+            container.innerHTML = games.map(game => {
+                const availableCount = availableCounts[game.id] || 0;
+                const isAvailable = availableCount > 0;
+                
+                return `
+                <div class="game-card">
+                    <div class="game-image">
+                        <img src="${game.image}" alt="${game.name}" onerror="this.src='images/placeholder.jpg'">
+                    </div>
+                    <div class="game-title">${game.name}</div>
+                    <div class="game-platform">${game.platform}</div>
+                    <div class="game-price">
+                        ${game.oldPrice ? `<span class="old-price">${game.oldPrice}₽</span>` : ''}
+                        ${game.price}₽
+                    </div>
+                    ${game.id === 1 ? 
+                        `<div style="font-size:0.8rem; color:#28a745; margin:0.3rem 0;"></div>
+                        <button class="btn" onclick="addToCart(${game.id}, '${game.name}', ${game.price}, '${game.image}', this)">
+                            В корзину
+                        </button>` :
+                        (isAvailable ? 
+                            `<div style="font-size:0.8rem; color:#5a6e7c; margin:0.3rem 0;">В наличии: ${availableCount} шт.</div>
+                            <button class="btn" onclick="addToCart(${game.id}, '${game.name}', ${game.price}, '${game.image}', this)">
+                                В корзину
+                            </button>` :
+                            `<button class="btn" disabled style="opacity:0.5; cursor:not-allowed;">
+                                Нет в наличии
+                            </button>`)
+                    }
+                </div>
+            `}).join('');
+        }
+
+        let currentGames = [...allGames];
+
+        document.getElementById('platform-filter').addEventListener('change', (e) => {
+            const platform = e.target.value;
+            currentGames = platform === 'all' 
+                ? [...allGames]
+                : allGames.filter(game => game.platform === platform);
+            applySort();
+        });
+
+        document.getElementById('sort-filter').addEventListener('change', applySort);
+
+        function applySort() {
+            const sortType = document.getElementById('sort-filter').value;
+            let sorted = [...currentGames];
+            
+            switch(sortType) {
+                case 'price-asc':
+                    sorted.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    sorted.sort((a, b) => b.price - a.price);
+                    break;
+                case 'name':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                default:
+                    sorted = [...currentGames];
+            }
+            
+            renderCatalog(sorted);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            renderCatalog(allGames);
+        });
+    </script>
+</body>
+</html>

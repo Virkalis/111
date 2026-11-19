@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameKeys Shop - Полезная информация</title>
+    <link rel="stylesheet" href="style.css"><script src="app.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">KEY STORE</div>
+            <div class="nav-links">
+                <a href="main.html">Главная</a>
+                <a href="catalog.html">Каталог</a>
+                <a href="cart.html">Корзина <span class="cart-count">0</span></a>
+                <a href="contacts.html">Контакты</a>
+                <a href="info.html" class="active">Полезное</a>
+                <a href="purchases.html">Мои покупки</a><a href="profile.html">Кабинет</a><a data-auth-link href="auth.html">Войти</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">Полезная информация</h1>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h2> Как активировать ключ Steam?</h2>
+                <ol>
+                    <li>Запустите клиент Steam</li>
+                    <li>Войдите в свой аккаунт</li>
+                    <li>Нажмите «Игры» → «Активировать через Steam»</li>
+                    <li>Введите полученный ключ</li>
+                    <li>Игра появится в вашей библиотеке</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h2> Как активировать ключ Xbox?</h2>
+                <ol>
+                    <li>Перейдите на сайт redeem.microsoft.com</li>
+                    <li>Войдите в аккаунт Microsoft</li>
+                    <li>Введите 25-значный код</li>
+                    <li>Нажмите «Далее» и подтвердите активацию</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h2> Как активировать ключ PlayStation?</h2>
+                <ol>
+                    <li>Откройте PlayStation Store на консоли</li>
+                    <li>Пролистайте вниз до меню «Активация кодов»</li>
+                    <li>Введите 12-значный код</li>
+                    <li>Подтвердите активацию</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h2> Часто задаваемые вопросы</h2>
+                <ul>
+                    <li><strong>Вопрос:</strong> Как долго действителен ключ?<br>
+                    <strong>Ответ:</strong> Ключи бессрочны, но рекомендуем активировать сразу после покупки.</li>
+                    
+                    <li><strong>Вопрос:</strong> Можно ли вернуть ключ?<br>
+                    <strong>Ответ:</strong> Возврат возможен только до момента активации ключа.</li>
+                    
+                    <li><strong>Вопрос:</strong> Подходит ли ключ для региона Россия?<br>
+                    <strong>Ответ:</strong> Да, все ключи работают в регионе Россия и СНГ.</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h2> Способы оплаты</h2>
+                <ul>
+                    <li>Банковские карты (Visa, MasterCard, МИР)</li>
+                    <li>QIWI Кошелек</li>
+                    <li>ЮMoney</li>
+                    <li>Криптовалюта (USDT, Bitcoin)</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h2> Время получения ключей</h2>
+                <ul>
+                    <li>Мгновенная выдача после оплаты</li>
+                    <li>Поддержка 24/7</li>
+                    <li>Автоматическая проверка ключей</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="info-tips">
+            <h2> Советы по безопасности</h2>
+            <ul>
+                <li>Никогда не передавайте свои ключи третьим лицам</li>
+                <li>Храните подтверждение покупки до активации ключа</li>
+                <li>Активируйте ключ сразу после получения</li>
+                <li>При проблемах с активацией - обратитесь в поддержку</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 студенческий проект</p>
+    </footer>
+
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = totalItems;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+    </script>
+</body>
+</html>

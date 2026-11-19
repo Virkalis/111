@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameKeys Shop - Корзина</title>
+    <link rel="stylesheet" href="style.css"><script src="app.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">KEY STORE</div>
+            <div class="nav-links">
+                <a href="main.html">Главная</a>
+                <a href="catalog.html">Каталог</a>
+                <a href="cart.html" class="active">Корзина <span class="cart-count">0</span></a>
+                <a href="contacts.html">Контакты</a>
+            <a href="purchases.html">Мои покупки</a><a href="profile.html">Кабинет</a><a data-auth-link href="auth.html">Войти</a></div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">Корзина</h1>
+        
+        <div id="cart-content"></div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 GameKeys — студенческий проект</p>
+    </footer>
+
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = totalItems;
+            });
+        }
+
+        window.updateQuantity = function(id, delta) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemIndex = cart.findIndex(item => item.id === id);
+            
+            if (itemIndex !== -1) {
+                const newQuantity = cart[itemIndex].quantity + delta;
+                
+                if (newQuantity < 1) {
+                    cart.splice(itemIndex, 1);
+                } else {
+                    cart[itemIndex].quantity = newQuantity;
+                }
+                
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+                renderCart();
+            }
+        };
+
+        window.removeFromCart = function(id) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart = cart.filter(item => item.id !== id);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            renderCart();
+        };
+
+        window.clearCart = function() {
+            localStorage.removeItem('cart');
+            updateCartCount();
+            renderCart();
+        };
+
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartContent = document.getElementById('cart-content');
+
+            if (cart.length === 0) {
+                cartContent.innerHTML = `
+                    <div class="empty-cart">
+                        Корзина пуста
+                        <a href="catalog.html" class="btn" style="margin-top: 1rem;">Перейти в каталог</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            cartContent.innerHTML = `
+                <div class="cart-layout">
+                    <div class="cart-items">
+                        ${cart.map(item => `
+                            <div class="cart-item">
+                                <div class="cart-item-image">
+                                    <img src="${item.image}" alt="${item.name}" onerror="this.src='images/placeholder.jpg'">
+                                </div>
+                                <div class="cart-item-info">
+                                    <div class="cart-item-title">${item.name}</div>
+                                    <div class="cart-item-price">${item.price}₽</div>
+                                </div>
+                                <div class="cart-item-actions">
+                                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                                    <span class="quantity">${item.quantity}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                                    <button class="remove-btn" onclick="removeFromCart(${item.id})">✕</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="cart-summary">
+                        <h3>Итого</h3>
+                        <div class="summary-row">
+                            <span>Товаров:</span>
+                            <span>${totalItems} шт.</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Сумма:</span>
+                            <span>${subtotal}₽</span>
+                        </div>
+                        <a href="oplata.html" class="btn checkout-btn">Перейти к оплате</a>
+                        <button class="btn clear-cart-btn" onclick="clearCart()">Очистить</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            renderCart();
+        });
+    </script>
+</body>
+</html>

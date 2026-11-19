@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameKeys Shop - Контакты</title>
+    <link rel="stylesheet" href="style.css"><script src="app.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">KEY STORE</div>
+            <div class="nav-links">
+                <a href="main.html">Главная</a>
+                <a href="catalog.html">Каталог</a>
+                <a href="cart.html">Корзина <span class="cart-count">0</span></a>
+                <a href="contacts.html" class="active">Контакты</a>
+            <a href="purchases.html">Мои покупки</a><a href="profile.html">Кабинет</a><a data-auth-link href="auth.html">Войти</a></div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">Контакты</h1>
+        
+        <div class="contacts-grid">
+            <div class="contacts-info">
+                <div class="contact-item">
+                    <div class="contact-icon"></div>
+                    <div class="contact-details">
+                        <h3>Telegram</h3>
+                        <p>@gamekeys_support</p>
+                        <small>Ответ 24/7</small>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon"></div>
+                    <div class="contact-details">
+                        <h3>Email</h3>
+                        <p>support@gamekeys.ru</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon"></div>
+                    <div class="contact-details">
+                        <h3>Время работы</h3>
+                        <p>Поддержка: 24/7</p>
+                        <p>Выдача ключей: мгновенно</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="support-form">
+                <h2>Написать в поддержку</h2>
+                <form id="support-form" onsubmit="event.preventDefault(); sendSupportMessage();">
+                    <div class="form-group">
+                        <label for="name">Имя:</label>
+                        <input type="text" id="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-email">Email:</label>
+                        <input type="email" id="contact-email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Сообщение:</label>
+                        <textarea id="message" class="form-input" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 студенческий проект</p>
+    </footer>
+
+    <script>
+        function sendSupportMessage() {
+            const form = document.getElementById('support-form');
+            let status = document.getElementById('support-status');
+            if (!status) {
+                status = document.createElement('div');
+                status.id = 'support-status';
+                status.className = 'form-status success';
+                form.appendChild(status);
+            }
+            status.textContent = 'Сообщение принято. Мы ответим в течение 15 минут.';
+            form.reset();
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = totalItems;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+    </script>
+</body>
+</html>

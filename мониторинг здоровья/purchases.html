@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameKeys Shop - Мои покупки</title>
+    <link rel="stylesheet" href="style.css"><script src="app.js"></script>
+    <style>
+        .purchases-toolbar { display:flex; justify-content:space-between; gap:1rem; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; }
+        .purchase-card { background:#fff; border-radius:16px; padding:1.4rem; margin-bottom:1rem; box-shadow:0 5px 20px rgba(0,0,0,.08); border:1px solid #eee; }
+        .purchase-head { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+        .purchase-id { font-weight:700; }
+        .purchase-date { color:#777; font-size:.9rem; }
+        .purchase-status { display:inline-block; padding:.35rem .7rem; border-radius:999px; background:#e8f7ed; color:#18834b; font-size:.85rem; font-weight:700; }
+        .purchase-item { border-top:1px solid #eee; padding:1rem 0; display:grid; grid-template-columns:1fr auto; gap:1rem; }
+        .purchase-item h3 { margin:0 0 .35rem; }
+        .key-box { background:#f5f6f8; border-radius:10px; padding:.8rem; margin-top:.6rem; font-family:monospace; word-break:break-all; }
+        .purchase-meta { color:#666; font-size:.9rem; }
+        .empty-purchases { text-align:center; padding:4rem 1rem; background:#fff; border-radius:16px; box-shadow:0 5px 20px rgba(0,0,0,.06); }
+        .notice { padding:1rem; background:#eef6ff; border-left:4px solid #3b82f6; border-radius:8px; margin-bottom:1.5rem; color:#234; }
+        @media(max-width:650px){.purchase-item{grid-template-columns:1fr}.purchase-head{display:block}.purchase-date{margin:.4rem 0}}
+    </style>
+</head>
+<body>
+<header class="header"><nav class="nav">
+    <div class="logo">KEY STORE</div>
+    <div class="nav-links">
+        <a href="main.html">Главная</a><a href="catalog.html">Каталог</a>
+        <a href="cart.html">Корзина <span class="cart-count">0</span></a>
+        <a href="contacts.html">Контакты</a><a href="info.html">Полезное</a>
+        <a href="purchases.html" class="active">Мои покупки</a>
+    <a href="purchases.html">Мои покупки</a><a href="profile.html">Кабинет</a><a data-auth-link href="auth.html">Войти</a></div>
+</nav></header>
+<main class="container">
+    <h1 class="page-title">Мои покупки</h1>
+    <div class="notice">Здесь хранятся только ваши оплаченные заказы и выданные ключи. Отзыв на купленный товар можно оставить после покупки.</div>
+    <div class="purchases-toolbar"><strong id="purchase-count">0 заказов</strong><button class="btn" id="clear-purchases" type="button">Очистить историю</button></div>
+    <div id="purchases-content"></div>
+</main>
+<footer class="footer"><p>© 2025 — студенческий проект</p></footer>
+<script>
+function updateCartCount(){const cart=JSON.parse(localStorage.getItem('cart')||'[]');const n=cart.reduce((s,i)=>s+i.quantity,0);document.querySelectorAll('.cart-count').forEach(e=>e.textContent=n)}
+function getOrders(){return GameKeys.getUserOrders()}
+function renderPurchases(){
+ if(!GameKeys.isLoggedIn()){document.getElementById('purchases-content').innerHTML='<div class="empty-purchases"><h2>Войдите в аккаунт</h2><p>После входа здесь будут отображаться ваши покупки.</p><a class="btn" href="auth.html?return=purchases.html">Войти или зарегистрироваться</a></div>';return;}
+ const orders=getOrders(), box=document.getElementById('purchases-content');
+ document.getElementById('purchase-count').textContent=`${orders.length} ${orders.length===1?'заказ':(orders.length>=2&&orders.length<=4?'заказа':'заказов')}`;
+ if(!orders.length){box.innerHTML='<div class="empty-purchases"><h2>Покупок пока нет</h2><p>После оплаты заказ появится здесь вместе с выданными ключами.</p><a class="btn" href="catalog.html">Перейти в каталог</a></div>';return}
+ box.innerHTML=orders.map(order=>`<article class="purchase-card">
+  <div class="purchase-head"><div><div class="purchase-id">Заказ #${order.id}</div><div class="purchase-date">${order.date}</div></div><div><span class="purchase-status">Оплачен</span></div></div>
+  ${order.items.map(item=>`<div class="purchase-item"><div><h3>${item.gameName}</h3><div class="purchase-meta">Платформа: ${item.platform} · Количество: ${item.quantity}</div><div class="key-box">${item.key}</div><div class="purchase-meta">Инструкция: активируйте ключ в клиенте ${item.platform === 'steam' ? 'Steam' : item.platform}.</div></div><strong>${item.price} ₽</strong></div>`).join('')}
+  <div class="summary-row total"><span>Сумма заказа</span><strong>${order.total} ₽</strong></div>
+ </article>`).join('')
+}
+document.getElementById('clear-purchases').addEventListener('click',()=>{const u=GameKeys.currentUser();if(!u){location.href='auth.html?return=purchases.html';return}const all=GameKeys.readJSON('orders',[]);GameKeys.writeJSON('orders',all.filter(o=>o.userId!==u.id && o.email!==u.email));renderPurchases()});
+document.addEventListener('DOMContentLoaded',()=>{updateCartCount();renderPurchases()});
+</script>
+</body></html>
